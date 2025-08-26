@@ -9,8 +9,15 @@
   <title>Hotspot QR Code Scanner</title>
   <style>
     body {
+      width: 100%;
       background-color: #000000;
+      margin: 0;
       color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      text-align: center;
     }
 
     video {
@@ -68,35 +75,22 @@
     }
   </style>
 
-  <!-- <script type="text/javascript" src="llqrcode.js"></script> -->
   <script type="text/javascript" src="html5-qrcode.min.js"></script>
-  <!-- <script type="text/javascript" src="mikhmon_webqr.js?v1"></script> -->
   <script async src="https://arc.io/widget.min.js#rDZc6s4f"></script>
 </head>
 
 <body>
-  <div style="margin: auto">
+  <div>
     <div id="main">
       <div id="mainbody">
         <div class="camera" id="outdiv"></div>
         <div style="width: 500px" id="reader"></div>
         <div style="display: table;">
-          <div style="display: table-row;">
-            <div style="display: table-cell; padding:3px;">
-              <div class="btn" id="reload" onclick="location.reload();"><i class="icon icon-arrows-cw">&#xe800;</i>
-                Reload Camera</div>
-            </div>
-            <div style="display: table-cell; padding:3px;">
-              <a class="btn" href="intent://azhari-az.github.io/qr#Intent;scheme=http;package=com.android.chrome;end"><i
-                  class="icon icon-chrome-1">&#xf268;</i> Open in Chrome</a>
-            </div>
-          </div>
         </div>
       </div>
     </div>
     <div>Hotspot QR Code Scanner<br>Powered by <a href="http://www.templatemikrotik.id">templatemikrotik.id</a></div>
   </div>
-  <!-- <canvas style="display:none;" id="qr-canvas" width="800" height="600"></canvas> -->
 
   <script type="text/javascript">
     function onScanSuccess(decodedText, decodedResult) {
