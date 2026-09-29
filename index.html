@@ -1,113 +1,1034 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="id">
 <head>
-  <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#000000" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#000000">
+  <title>Hotspot QR Code Scanner - TemplateMikrotik.id</title>
+  <meta name="description" content="Scanner QR Code Voucher Hotspot MikroTik modern, cepat, dan responsif. Login otomatis cukup dengan scan kamera HP.">
+  
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 
-  <title>Hotspot QR Code Scanner</title>
+  <!-- Google Fonts: Plus Jakarta Sans (sama dengan Halaman Demo) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   <style>
-    body {
-      width: 100%;
-      background-color: #000000;
+    :root {
+      --bg: #000000;
+      --card-bg: #0c0c0f;
+      --card-border: #1c1c24;
+      --card-border-hover: #a9f501;
+      --primary: #a9f501;
+      --primary-hover: #93db00;
+      --primary-text: #000000;
+      --text-main: #ffffff;
+      --text-muted: #8e8e99;
+      --input-bg: #0c0c0f;
+      --input-border: #1c1c24;
+      --accent-glow: rgba(169, 245, 1, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
       margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 24px 16px 40px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Ambient background glow */
+    body::before {
+      content: "";
+      position: fixed;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(169, 245, 1, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Navbar / Header */
+    .navbar-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--card-border);
+      text-align: center;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+    }
+
+    .logo-img {
+      max-height: 42px;
+      width: auto;
+      object-fit: contain;
+      margin: 0 auto;
+    }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #09090d;
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--primary);
+      box-shadow: 0 0 8px var(--primary);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.4; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.15); }
+      100% { opacity: 0.4; transform: scale(0.9); }
+    }
+
+    /* Main Scanner Card */
+    .scanner-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+      transition: border-color 0.3s ease;
+    }
+
+    .scanner-card:hover {
+      border-color: rgba(169, 245, 1, 0.35);
+    }
+
+    .scanner-card-header {
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .scanner-title {
+      font-size: 15px;
+      font-weight: 700;
       color: #ffffff;
       display: flex;
-      justify-content: center;
       align-items: center;
-      min-height: 100vh;
-      text-align: center;
+      gap: 8px;
     }
 
-    video {
+    .scanner-title svg {
+      color: var(--primary);
+    }
+
+    /* Camera Viewport Wrapper */
+    .viewport-wrapper {
+      position: relative;
+      width: 100%;
+      background: #050508;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #reader {
       width: 100% !important;
-      height: auto !important;
+      height: 100% !important;
+      border: none !important;
+      position: absolute;
+      top: 0;
+      left: 0;
     }
 
-    .btn {
-      margin-top: 5px;
-      margin-bottom: 10px;
-      padding: 5px;
-      background-color: #f2f2f2;
-      color: #000000;
-      border-radius: 3px;
-      width: 150px;
+    #reader video {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+    }
+
+    /* Hide default html5-qrcode extra elements if any appear */
+    #reader__header_message,
+    #reader__status_span,
+    #reader__dashboard_section,
+    #reader__scan_region img {
+      display: none !important;
+    }
+
+    /* Viewfinder HUD Overlay */
+    .hud-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Dark vignette around scanner target */
+    .hud-vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, transparent 48%, rgba(0, 0, 0, 0.65) 100%);
+    }
+
+    .scan-box {
+      position: relative;
+      width: 68%;
+      height: 68%;
+      border-radius: 16px;
+      box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.35);
+    }
+
+    /* 4 Corner Neon Brackets */
+    .scan-corner {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-color: var(--primary);
+      border-style: solid;
+      pointer-events: none;
+    }
+
+    .corner-tl {
+      top: 0;
+      left: 0;
+      border-width: 3.5px 0 0 3.5px;
+      border-top-left-radius: 12px;
+    }
+
+    .corner-tr {
+      top: 0;
+      right: 0;
+      border-width: 3.5px 3.5px 0 0;
+      border-top-right-radius: 12px;
+    }
+
+    .corner-bl {
+      bottom: 0;
+      left: 0;
+      border-width: 0 0 3.5px 3.5px;
+      border-bottom-left-radius: 12px;
+    }
+
+    .corner-br {
+      bottom: 0;
+      right: 0;
+      border-width: 0 3.5px 3.5px 0;
+      border-bottom-right-radius: 12px;
+    }
+
+    /* Animated Scanning Laser Line */
+    .laser-line {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 2.5px;
+      background: linear-gradient(90deg, transparent 5%, var(--primary) 50%, transparent 95%);
+      box-shadow: 0 0 14px var(--primary), 0 0 25px var(--primary);
+      animation: scanLaser 2.2s ease-in-out infinite alternate;
+      border-radius: 2px;
+    }
+
+    @keyframes scanLaser {
+      0% { top: 6%; opacity: 0.3; }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { top: 92%; opacity: 0.3; }
+    }
+
+    /* Camera Floating Action Toolbar */
+    .camera-toolbar {
+      position: absolute;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(9, 9, 13, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+      padding: 6px 14px;
+      border-radius: 30px;
+      z-index: 20;
+    }
+
+    .tool-btn {
+      background: transparent;
+      border: none;
+      color: #ffffff;
+      padding: 6px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
+      transition: all 0.2s ease;
+      outline: none;
     }
 
-    .camera {
-      width: 95%;
+    .tool-btn:hover {
+      background: rgba(169, 245, 1, 0.2);
+      color: var(--primary);
+      transform: scale(1.1);
     }
 
-    a {
-      text-decoration: none;
-      color: #20a8d8;
+    .tool-btn.active {
+      background: var(--primary);
+      color: var(--primary-text);
+      box-shadow: 0 0 10px var(--primary);
     }
 
-    @font-face {
-      font-family: 'fontello';
-      src: url('./font/fontello.eot?14907215');
-      src: url('./font/fontello.eot?14907215#iefix') format('embedded-opentype'),
-        url('./font/fontello.woff?14907215') format('woff'),
-        url('./font/fontello.ttf?14907215') format('truetype'),
-        url('./font/fontello.svg?14907215#fontello') format('svg');
-      font-weight: normal;
-      font-style: normal;
-    }
-
-    .icon {
-      font-family: "fontello";
-      font-style: normal;
-      font-weight: normal;
-      speak: none;
-      display: inline-block;
-      text-decoration: inherit;
-      width: 1em;
-      margin-right: .2em;
+    /* Scanner Loading / State Box */
+    .camera-loader {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #07070a;
+      z-index: 5;
+      gap: 14px;
+      color: var(--text-muted);
+      font-size: 13px;
       text-align: center;
-      font-variant: normal;
-      text-transform: none;
-      line-height: 1em;
-      margin-left: .2em;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+      padding: 24px;
+    }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid rgba(169, 245, 1, 0.15);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.85s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Success Card Overlay */
+    .success-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(8, 12, 4, 0.94);
+      backdrop-filter: blur(10px);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 30;
+      padding: 24px;
+      text-align: center;
+      animation: fadeIn 0.25s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .success-icon-wrap {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: var(--primary-text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+      box-shadow: 0 0 25px rgba(169, 245, 1, 0.5);
+    }
+
+    .success-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+
+    .success-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      word-break: break-all;
+      max-width: 90%;
+    }
+
+    .success-redirect-bar {
+      width: 100%;
+      max-width: 220px;
+      height: 4px;
+      background: #1c1c24;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .success-redirect-progress {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      animation: fillBar 1.2s ease forwards;
+    }
+
+    @keyframes fillBar {
+      to { width: 100%; }
+    }
+
+    /* Card Footer & Controls */
+    .scanner-card-footer {
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #09090d;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .hint-text {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.45;
+    }
+
+    /* Button System (sama dengan Halaman Demo) */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: var(--primary-text);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      box-shadow: 0 4px 14px rgba(169, 245, 1, 0.35);
+    }
+
+    .btn-outline {
+      background: #121218;
+      color: #e4e4e7;
+      border: 1px solid var(--card-border);
+    }
+
+    .btn-outline:hover {
+      background: #1a1a24;
+      border-color: #3f3f50;
+      color: #ffffff;
+    }
+
+    .btn-chrome {
+      background: #0e0e14;
+      border: 1px solid #272736;
+      color: #e4e4e7;
+    }
+
+    .btn-chrome:hover {
+      background: #161622;
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .chrome-icon {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+      flex-shrink: 0;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    /* Fallback / Error Alert Box */
+    .alert-box {
+      display: none;
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 12.5px;
+      color: #fca5a5;
+      line-height: 1.5;
+    }
+
+    .alert-box b {
+      color: #ffffff;
+    }
+
+    /* Instructions Box */
+    .guide-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .guide-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .guide-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .step-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #1a1a24;
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #14141c;
+      border: 1px solid var(--primary);
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85);
+      font-size: 12.5px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 12px;
+      color: #555562;
+    }
+
+    .footer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Mobile specific adjustments */
+    @media (max-width: 640px) {
+      body {
+        padding: 18px 12px 32px;
+      }
+      .navbar-header {
+        gap: 10px;
+        padding-bottom: 12px;
+      }
+      .logo-img {
+        max-height: 38px;
+      }
+      .scanner-card {
+        border-radius: 16px;
+      }
+      .scan-box {
+        width: 72%;
+        height: 72%;
+      }
     }
   </style>
 
+  <!-- Library HTML5-QRCode -->
   <script type="text/javascript" src="html5-qrcode.min.js"></script>
-  <script async src="https://arc.io/widget.min.js#rDZc6s4f"></script>
 </head>
 
 <body>
-  <div>
-    <div id="main">
-      <div id="mainbody">
-        <div class="camera" id="outdiv"></div>
-        <div style="width: 500px" id="reader"></div>
-        <div style="display: table;">
+  <div class="container">
+    <!-- Header: Logo Rata Tengah & Status Badge -->
+    <header class="navbar-header">
+      <a href="/" class="nav-brand">
+        <img src="logo-templatemikrotik.webp" alt="TemplateMikrotik Logo" class="logo-img" onerror="this.src='/logo-templatemikrotik.webp';">
+      </a>
+      <div class="header-badge">
+        <span class="pulse-dot"></span>
+        <span>Hotspot QR Scanner</span>
+      </div>
+    </header>
+
+    <!-- Error/Alert Banner (muncul bila kamera diblokir captive portal/izin) -->
+    <div id="cameraAlert" class="alert-box">
+      <b>Izin Kamera Tidak Tersedia:</b> Browser atau jendela login Anda membatasi akses kamera. Silakan buka melalui <b>Google Chrome</b> atau gunakan tombol <b>Upload Gambar Voucher</b> di bawah.
+    </div>
+
+    <!-- Scanner Main Card -->
+    <div class="scanner-card">
+      <div class="scanner-card-header">
+        <div class="scanner-title">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+          <span>Pindai QR Voucher</span>
+        </div>
+        <span id="cameraLabelBadge" style="font-size: 11.5px; color: var(--text-muted); font-weight: 600;">Menyiapkan...</span>
+      </div>
+
+      <!-- Viewport Kamera -->
+      <div class="viewport-wrapper">
+        <div id="reader"></div>
+
+        <!-- Loader saat kamera sedang dinyalakan -->
+        <div id="cameraLoader" class="camera-loader">
+          <div class="spinner"></div>
+          <span>Menghubungkan ke kamera...</span>
+        </div>
+
+        <!-- Viewfinder HUD (Corner Brackets + Animated Laser) -->
+        <div class="hud-overlay" id="hudOverlay">
+          <div class="hud-vignette"></div>
+          <div class="scan-box">
+            <div class="scan-corner corner-tl"></div>
+            <div class="scan-corner corner-tr"></div>
+            <div class="scan-corner corner-bl"></div>
+            <div class="scan-corner corner-br"></div>
+            <div class="laser-line" id="laserLine"></div>
+          </div>
+        </div>
+
+        <!-- Floating Camera Action Toolbar (Flip Camera, Flashlight, Gallery) -->
+        <div class="camera-toolbar">
+          <button class="tool-btn" id="btnSwitchCamera" onclick="switchCamera()" title="Ganti Kamera Depan / Belakang">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          </button>
+          <button class="tool-btn" id="btnTorch" onclick="toggleTorch()" title="Nyalakan / Matikan Senter">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+          </button>
+          <button class="tool-btn" id="btnUploadFile" onclick="triggerFileInput()" title="Upload Foto QR dari Galeri">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+          </button>
+          <!-- Hidden File Input for Gallery Pick -->
+          <input type="file" id="qrFileInput" accept="image/*" style="display:none;" onchange="handleFileScan(event)">
+        </div>
+
+        <!-- Success Animation Overlay -->
+        <div class="success-overlay" id="successOverlay">
+          <div class="success-icon-wrap">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+          </div>
+          <div class="success-title">QR Code Terdeteksi!</div>
+          <div class="success-desc" id="successDesc">Mengalihkan ke sistem hotspot...</div>
+          <div class="success-redirect-bar">
+            <div class="success-redirect-progress"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="scanner-card-footer">
+        <p class="hint-text">
+          Posisikan kode QR voucher di dalam area kotak hijau hingga terdengar bunyi konfirmasi.
+        </p>
+        
+        <!-- Opsi Buka di Chrome jika Captive Portal Android memblokir kamera -->
+        <button class="btn btn-chrome" id="btnOpenChrome" onclick="openInChrome()">
+          <img src="chrome.webp" alt="Google Chrome" class="chrome-icon" onerror="this.src='/chrome.webp';">
+          <span>Buka di Google Chrome</span>
+        </button>
+
+        <button class="btn btn-outline" onclick="goBackToLogin()">
+          <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+          <span>Kembali ke Halaman Login</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Panduan Pemakaian Sederhana -->
+    <div class="guide-card">
+      <div class="guide-title">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span>Petunjuk Penggunaan Voucher</span>
+      </div>
+      <div class="guide-steps">
+        <div class="step-item">
+          <span class="step-num">1</span>
+          <span>Ambil voucher fisik WiFi yang sudah Anda beli.</span>
+        </div>
+        <div class="step-item">
+          <span class="step-num">2</span>
+          <span>Arahkan kamera HP ke QR Code yang tercetak pada voucher.</span>
+        </div>
+        <div class="step-item">
+          <span class="step-num">3</span>
+          <span>Perangkat akan terhubung dan login secara otomatis tanpa perlu mengetik kode manual.</span>
         </div>
       </div>
     </div>
-    <div>Hotspot QR Code Scanner<br>Powered by <a href="http://www.templatemikrotik.id">templatemikrotik.id</a></div>
+
+    <footer class="footer">
+      &copy; 2026 &nbsp; <a href="https://templatemikrotik.id" target="_blank">TemplateMikrotik.id</a>
+    </footer>
   </div>
 
-  <script type="text/javascript">
-    function onScanSuccess(decodedText, decodedResult) {
-      // Handle on success condition with the decoded text or result.
-      console.log(`Scan result: ${decodedText}`, decodedResult);
-      window['location'] = decodedText
-      html5QrcodeScanner.clear();
-      // ^ this will stop the scanner (video feed) and clear the scan area.
-    }
-    function onScanError(errorMessage) {
-      // handle on error condition, with error message
+  <!-- Toast Notification element -->
+  <div class="toast" id="toast">
+    <span id="toastMsg">Pesan Notifikasi</span>
+  </div>
+
+  <script>
+    let html5QrCode = null;
+    let availableCameras = [];
+    let currentCameraIndex = 0;
+    let isTorchOn = false;
+    let isScanning = false;
+    let hasScanned = false;
+
+    // Inisialisasi Audio Context untuk Bunyi Beep saat Sukses
+    function playBeep() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(1046.5, ctx.currentTime); // C6 Note
+        gain.gain.setValueAtTime(0.18, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.16);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.16);
+      } catch (e) {
+        console.warn("Audio Context not allowed:", e);
+      }
     }
 
-    var html5QrcodeScanner = new Html5QrcodeScanner(
-      "reader", { fps: 10, qrbox: 250 });
-    html5QrcodeScanner.render(onScanSuccess);
+    function showToast(msg, duration = 2800) {
+      const toast = document.getElementById("toast");
+      const toastMsg = document.getElementById("toastMsg");
+      toastMsg.innerText = msg;
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, duration);
+    }
+
+    // Callback saat QR Code berhasil terdeteksi
+    function onScanSuccess(decodedText, decodedResult) {
+      if (hasScanned) return;
+      hasScanned = true;
+
+      // Haptic feedback & audio
+      if (navigator.vibrate) {
+        try { navigator.vibrate([80, 40, 80]); } catch(e) {}
+      }
+      playBeep();
+
+      console.log("Scan result:", decodedText, decodedResult);
+
+      // Tampilkan animasi sukses
+      const successOverlay = document.getElementById("successOverlay");
+      const successDesc = document.getElementById("successDesc");
+      const laserLine = document.getElementById("laserLine");
+      if (laserLine) laserLine.style.animationPlayState = "paused";
+
+      successOverlay.style.display = "flex";
+
+      let targetUrl = decodedText.trim();
+      const isUrl = /^https?:\/\//i.test(targetUrl);
+
+      if (isUrl) {
+        successDesc.innerText = "Mengalihkan ke: " + targetUrl;
+      } else {
+        successDesc.innerText = "Kode Voucher: " + targetUrl;
+      }
+
+      // Hentikan scanner
+      if (html5QrCode && isScanning) {
+        html5QrCode.stop().then(() => {
+          isScanning = false;
+        }).catch(err => console.warn(err));
+      }
+
+      // Pengalihan otomatis
+      setTimeout(() => {
+        if (isUrl) {
+          window.location.href = targetUrl;
+        } else {
+          // Jika isi QR bukan URL langsung (misal hanya kode username), coba cari form login dari referrer atau URL saat ini
+          const currentUrl = new URL(window.location.href);
+          const redirectParam = currentUrl.searchParams.get("target") || currentUrl.searchParams.get("dst");
+          if (redirectParam) {
+            window.location.href = redirectParam + (redirectParam.includes("?") ? "&" : "?") + "username=" + encodeURIComponent(targetUrl);
+          } else {
+            // Salin ke clipboard & info
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(targetUrl);
+              showToast("Kode voucher berhasil disalin!");
+            }
+            setTimeout(() => {
+              window.location.href = "/" || "/login";
+            }, 1000);
+          }
+        }
+      }, 1200);
+    }
+
+    function onScanError(errorMessage) {
+      // Ignored for normal continuous scan frames
+    }
+
+    // Mulai Kamera
+    async function startCamera(cameraIdOrConfig) {
+      const loader = document.getElementById("cameraLoader");
+      const badge = document.getElementById("cameraLabelBadge");
+      const alertBox = document.getElementById("cameraAlert");
+
+      loader.style.display = "flex";
+      alertBox.style.display = "none";
+
+      try {
+        if (html5QrCode && isScanning) {
+          await html5QrCode.stop();
+          isScanning = false;
+        }
+
+        if (!html5QrCode) {
+          html5QrCode = new Html5Qrcode("reader");
+        }
+
+        const config = {
+          fps: 15,
+          qrbox: (viewfinderWidth, viewfinderHeight) => {
+            const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+            const edge = Math.floor(minEdge * 0.72);
+            return { width: edge, height: edge };
+          },
+          aspectRatio: 1.0
+        };
+
+        await html5QrCode.start(cameraIdOrConfig, config, onScanSuccess, onScanError);
+        isScanning = true;
+        loader.style.display = "none";
+        badge.innerText = "Kamera Aktif";
+        badge.style.color = "var(--primary)";
+      } catch (err) {
+        console.error("Gagal memulai kamera:", err);
+        loader.style.display = "none";
+        alertBox.style.display = "block";
+        badge.innerText = "Kamera Terkendala";
+        badge.style.color = "#ef4444";
+      }
+    }
+
+    // Ganti Kamera (Kamera Depan / Belakang)
+    async function switchCamera() {
+      if (!availableCameras || availableCameras.length <= 1) {
+        showToast("Hanya 1 kamera yang terdeteksi di perangkat ini");
+        return;
+      }
+      currentCameraIndex = (currentCameraIndex + 1) % availableCameras.length;
+      const nextCam = availableCameras[currentCameraIndex];
+      showToast("Beralih ke: " + (nextCam.label || ("Kamera " + (currentCameraIndex + 1))));
+      await startCamera(nextCam.id);
+    }
+
+    // Toggle Senter / Flashlight
+    async function toggleTorch() {
+      const btnTorch = document.getElementById("btnTorch");
+      try {
+        const stream = document.querySelector("#reader video")?.srcObject;
+        if (!stream) {
+          showToast("Kamera belum aktif");
+          return;
+        }
+        const track = stream.getVideoTracks()[0];
+        const capabilities = track.getCapabilities ? track.getCapabilities() : {};
+        if (capabilities.torch) {
+          isTorchOn = !isTorchOn;
+          await track.applyConstraints({ advanced: [{ torch: isTorchOn }] });
+          if (isTorchOn) {
+            btnTorch.classList.add("active");
+            showToast("Lampu Senter Nyala");
+          } else {
+            btnTorch.classList.remove("active");
+            showToast("Lampu Senter Mati");
+          }
+        } else {
+          showToast("Perangkat tidak mendukung kontrol senter");
+        }
+      } catch (e) {
+        console.warn("Torch error:", e);
+        showToast("Gagal mengoperasikan lampu senter");
+      }
+    }
+
+    // Upload & Scan file gambar dari galeri
+    function triggerFileInput() {
+      document.getElementById("qrFileInput").click();
+    }
+
+    async function handleFileScan(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      showToast("Memeriksa gambar voucher...");
+
+      try {
+        if (!html5QrCode) {
+          html5QrCode = new Html5Qrcode("reader");
+        }
+        const decodedText = await html5QrCode.scanFile(file, true);
+        onScanSuccess(decodedText, { result: decodedText });
+      } catch (err) {
+        console.error("Gagal scan file gambar:", err);
+        showToast("QR Code tidak ditemukan pada foto tersebut");
+      } finally {
+        e.target.value = "";
+      }
+    }
+
+    // Buka di Chrome (khusus Android captive portal helper)
+    function openInChrome() {
+      const currentUrl = window.location.href;
+      const cleanUrl = currentUrl.replace(/^https?:\/\//i, "");
+      const chromeIntent = "intent://" + cleanUrl + "#Intent;scheme=http;package=com.android.chrome;end";
+      window.location.href = chromeIntent;
+    }
+
+    function goBackToLogin() {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = "/";
+      }
+    }
+
+    // Inisialisasi saat Halaman Dimuat
+    window.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const cameras = await Html5Qrcode.getCameras();
+        if (cameras && cameras.length > 0) {
+          availableCameras = cameras;
+          // Cari kamera belakang (environment) terlebih dahulu
+          const backCamIndex = cameras.findIndex(c => c.label.toLowerCase().includes("back") || c.label.toLowerCase().includes("belakang") || c.label.toLowerCase().includes("environment"));
+          if (backCamIndex !== -1) {
+            currentCameraIndex = backCamIndex;
+            await startCamera(cameras[backCamIndex].id);
+          } else {
+            currentCameraIndex = 0;
+            await startCamera({ facingMode: "environment" });
+          }
+        } else {
+          await startCamera({ facingMode: "environment" });
+        }
+      } catch (e) {
+        console.warn("Kamera getCameras fallback:", e);
+        await startCamera({ facingMode: "environment" });
+      }
+    });
   </script>
 </body>
-
 </html>
